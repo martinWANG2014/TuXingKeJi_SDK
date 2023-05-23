@@ -1,7 +1,7 @@
 from strenum import StrEnum
 
 
-class Direction(StrEnum):
+class Dir(StrEnum):
     # 上
     UP = "01",
     # 下
@@ -16,7 +16,7 @@ class Direction(StrEnum):
     RIGHT = "06"
 
 
-class Mangtion(StrEnum):
+class Dir2(StrEnum):
     # 前
     FRONT = "31",
     # 后
@@ -94,11 +94,11 @@ class SX(StrEnum):
     DOWN = "02"
 
 
-class LandStop(StrEnum):
+class Land(StrEnum):
     # 普通
-    NORMAL = "2F"
+    ORD = "2F"
     # 急停
-    URGENT = "2E"
+    STOP = "2E"
 
 
 class XXFX(StrEnum):

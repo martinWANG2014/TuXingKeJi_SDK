@@ -1,6 +1,6 @@
-from src.TuXingKeJi.TuXingSDK import TuXingSDK
-from src.TuXingKeJi.peripheral import Peripheral
-from src.TuXingKeJi.serialHelper import find_serial_port
+from TuXingKeJi.TuXingSDK import TuXingSDK
+from TuXingKeJi.peripheral import Peripheral
+from TuXingKeJi.serialHelper import find_serial_port
 
 if __name__ == '__main__':
     port_name = find_serial_port()
@@ -8,5 +8,5 @@ if __name__ == '__main__':
         peripheral = Peripheral(port_name[0])
         tuxing = TuXingSDK(peripheral)
         tuxing.start()
-        tuxing.init_uav()
+        tuxing.initialize_uav()
         tuxing.stop()
