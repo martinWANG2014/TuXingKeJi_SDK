@@ -1,7 +1,9 @@
-from src.TuXingKeJi.enumHelper import *
-from src.TuXingKeJi.peripheral import Peripheral
-from src.TuXingKeJi.serialHelper import hex_str
+from .enumHelper import ATGColor, QH, AllMode, MVColor, XXFX, JXSOF, OFFON, ISRColor, ISRRT, Land, FliPpt, Color, State, ZY, Rotate, SX, Dir2, Dir,SPED
+from .peripheral import Peripheral
+from .serialHelper import hex_str
 
+
+#2023-5-22 名称修改完毕
 
 # 红外灯
 # 红外灯[ISR_RT]
@@ -57,18 +59,23 @@ class TuXingSDK:
     def get_wifi_strength(self):
         return str(int(self.__peripheral.parse_data("DDAA", "FEFE", 34, 36), 16)) + "%"
 
-    # 获取openmv模式
-    # 视觉模式
-    def get_mode_open_mv(self):
-        open_mv_mode = self.__peripheral.parse_data("DDAA", "FEFE", 42, 44)
-        if open_mv_mode == "F3":
-            return "循线模式"
-        elif open_mv_mode == "F6":
-            return "二维码模式"
-        elif open_mv_mode == "F7":
-            return "色块定位模式"
-        else:
-            return "常规模式"
+    # 循线路口
+    # 循线路口
+    def air_HIGH(self):
+        return int(self.__peripheral.parse_data("DDAA", "FEFE", 40, 42), 16)
+
+    # # 获取openmv模式
+    # # 视觉模式
+    # def get_mode_open_mv(self):
+    #     open_mv_mode = self.__peripheral.parse_data("DDAA", "FEFE", 42, 44)
+    #     if open_mv_mode == "F3":
+    #         return "循线模式"
+    #     elif open_mv_mode == "F6":
+    #         return "二维码模式"
+    #     elif open_mv_mode == "F7":
+    #         return "色块定位模式"
+    #     else:
+    #         return "常规模式"
 
     # 获取前方距离
     # TOF测距（前）cm
@@ -94,6 +101,27 @@ class TuXingSDK:
     # TOF测距（下）cm
     def get_data_ultrason_down(self):
         return int(self.__peripheral.parse_data("DDAA", "FEFE", 28, 30), 16)
+
+
+
+    # 获取长
+    # 获取长
+    def parsedotx(self):
+        return int(self.__peripheral.parse_data("DDAA", "FEFE", 48, 50), 16)
+
+
+
+    # 获取宽
+    # 获取宽
+    def parsedoty(self):
+        return int(self.__peripheral.parse_data("DDAA", "FEFE", 50, 52), 16)
+
+
+    # 获取面积
+    # 获取面积
+    def parsedot_MJ(self):
+        return int(self.__peripheral.parse_data("DDAA", "FEFE", 52, 56), 16)
+
 
     # 位置值清零
     # 相对于[distance]号标签清除误差
@@ -136,6 +164,15 @@ class TuXingSDK:
     def move_Ctrl_time(self, direction: Dir2, distance: int):
         msg = " ".join(["AA FA 51", direction.value, hex_str("%04X" % distance, 4), "00 00 00 00 00 00 FE"])
         self.__peripheral.write(msg)
+
+
+    # 时间移动
+    # 向 [mangtion] 飞[distance]*0.01(秒)，速度[direction2]---------------------------------------------------------------------------------------------------------------------------------------
+    def move_Ctrl_time_speed(self, direction: Dir2, direction2: SPED, distance: int):
+        msg = " ".join(["AA FA 41", direction.value, hex_str("%04X" % distance, 4), "00", direction2.value ,"00 00 00 00 FE"])
+        self.__peripheral.write(msg)
+
+
 
     # 斜线移动
     # 向[QH][qh_num][ZY][zy_num][SX][sx_num](厘米)
@@ -195,6 +232,7 @@ class TuXingSDK:
         msg = " ".join(["AA FA 47 00 00 00", status.value, "00 00 00 00 00 FE"])
         self.__peripheral.write(msg)
 
+
     # 红外发射
     # 发射红外数据[ISR_RT]
     def emit_appoint_data(self, status: ISRRT):
@@ -231,6 +269,8 @@ class TuXingSDK:
         msg = " ".join(["AA FA 33", hex_str("%02X" % distance), "00 00 00 00 00 00 00 00 FE"])
         self.__peripheral.write(msg)
 
+
+
     # 机械手
     # 机械手[distance]°
     def set_hand(self, distance: int):
@@ -260,6 +300,7 @@ class TuXingSDK:
     def change_mode(self, mode: AllMode = AllMode.BY_DEFAULT):
         msg = " ".join(["AA FA A0", mode.value, "00 00 00 00 00 00 00 00 FE"])
         self.__peripheral.write(msg)
+
 
     # 标签间距，根据实际场地调整，单位cm
     # 二维码标签间距[distance]cm
@@ -296,3 +337,121 @@ class TuXingSDK:
     def calibration(self):
         msg = "AA FA 2A 00 00 00 00 00 00 00 00 00 FE"
         self.__peripheral.write(msg)
+
+    # ********************************************************************************************************
+    # 编队怠速
+    # TX230[direction]怠速
+    def BD_Unlock_uav(self, distance: int):
+        msg = " ".join(["AA FA C5", hex_str("%02X" % distance), "00 00 00 00 00 00 00 00 FE"])
+        self.__peripheral.write(msg)
+
+
+    # 环绕速度
+    # 环绕速度[distance]cm/s
+    def BD_around_SPEED(self, distance: int):
+        msg = " ".join(["AA FA A3", hex_str("%04X" % distance, 4),  "00 00 00 00 00 00 00 FE"])
+        self.__peripheral.write(msg)
+
+        # 编队起飞..................................................................................
+        # "[distance]无人机起飞[distance2]厘米",
+
+    def BD_take_off(self, distance: int, distance2: int):
+        msg = " ".join(
+            ["AA FA 22", hex_str("%04X" % distance2, 4), "00 00 00 00 00 00", hex_str("%02X" % distance), "FE"])
+        self.__peripheral.write(msg)
+
+        # 旋转..................................................................................
+        # [distance]无人机,[Rotate]旋转[distance2]度
+
+    def BD_rotate(self, distance: int, rotate: Rotate, distance2: int):
+        msg = " ".join(
+            ["AA FA 25", rotate.value, hex_str("%04X" % distance2, 4), "00 00 00 00 00", hex_str("%02X" % distance),
+             "FE"])
+        self.__peripheral.write(msg)
+
+        # 灯光控制
+        # [distance]无人机灯光[clour]色[state]........................................................
+
+    def BD_set_light(self, distance: int, color: Color = Color.BLACK, mode: State = State.BRIGHT):
+        msg = " ".join(["AA FA 26", color.value, mode.value, "00 00 00 00 00 00", hex_str("%02X" % distance), "FE"])
+        self.__peripheral.write(msg)
+
+        # 斜线移动
+        # ..........................................................................................
+        # [direction]无人机向[QH][qh_num][ZY][zy_num][SX][sx_num](厘米)
+
+    def BD_move_slash(self, distance: int, qh: QH, qh_num: int, zy: ZY, zy_num: int, sx: SX, sx_num: int):
+        msg = " ".join(
+            ["AA FA 56", qh.value, hex_str("%04X" % qh_num, 4), zy.value, hex_str("%04X" % zy_num, 4), sx.value,
+             hex_str("%02X" % sx_num), hex_str("%02X" % distance), "FE"])
+        self.__peripheral.write(msg)
+
+        # 匀速斜线移动
+        # [distance]无人机匀速向[QH][qh_num][ZY][zy_num](厘米)用时[distance4]秒
+
+    def BD_move_slash2(self, distance: int, qh: QH, qh_num: int, zy: ZY, zy_num: int, distance4: int):
+        msg = " ".join(
+            ["AA FA 57", qh.value, hex_str("%04X" % qh_num, 4), zy.value, hex_str("%04X" % zy_num, 4), "00",
+             hex_str("%02X" % distance4), hex_str("%02X" % distance), "FE"])
+        self.__peripheral.write(msg)
+
+        # 环绕
+        # [distance]号无人机以自身[QH][distance5]cm  [ZY][distance2]cm为中心 [Rotate]环绕[distance3]°  用时[distance4]秒
+
+    def BD_fly_surround(self, distance: int, qh: QH, distance5: int, zy: ZY, distance2: int, rotate_direction: Rotate,
+                        distance3: int,
+                        distance4: int):
+        msg = " ".join(["AA FA 52", qh.value, hex_str("%02X" % distance5), zy.value, hex_str("%02X" % distance2),
+                        hex_str("%04X" % distance3, 4), rotate_direction.value, hex_str("%02X" % distance4),
+                        hex_str("%02X" % distance), "FE"])
+        self.__peripheral.write(msg)
+
+        # 环绕
+        # [distance]号无人机以自身[SX][distance5]cm  [ZY][distance2]cm为中心 [Rotate]环绕[distance3]°  用时[distance4]秒
+
+    def BD_fly_surround2(self, distance: int, sx: SX, distance5: int, zy: ZY, distance2: int, rotate_direction: Rotate,
+                         distance3: int,
+                         distance4: int):
+        msg = " ".join(["AA FA 54", sx.value, hex_str("%02X" % distance5), zy.value, hex_str("%02X" % distance2),
+                        hex_str("%04X" % distance3, 4), rotate_direction.value, hex_str("%02X" % distance4),
+                        hex_str("%02X" % distance), "FE"])
+        self.__peripheral.write(msg)
+
+        # 编队降落...........................................................................................................
+        # "TX230[direction]降落",
+
+    def BD_landing(self, distance: int, mode: Land, distance2: int):
+        msg = " ".join(
+            ["AA FA", mode.value, hex_str("%04X" % distance2, 4), "00 00 00 00 00 00", hex_str("%02X" % distance),
+             "FE"])
+        self.__peripheral.write(msg)
+
+        # 期望标签
+        # "TX230[distance]飞到[distance2]标签，高度[distance3]厘米[clour]",
+
+    def BD_fly_ID(self, distance: int, distance2: int, distance3: int, color: Color):
+        msg = " ".join(
+            ["AA FA c2", hex_str("%02X" % distance), hex_str("%04X" % distance2, 4), hex_str("%04X" % distance3, 4),
+             "00 00 00", color.value, "FE"])
+        self.__peripheral.write(msg)
+
+        # 编队起飞
+        # "所有无人机以 X[distance]Y[distance2]为中心 [Rotate]环绕[distance3]°[clour]",
+
+    def BD_around(self, distance: int, distance2: int, distance3: int, rotate: Rotate, color: Color):
+        msg = " ".join(["AA FA C7 FF", hex_str("%04X" % distance, 4), hex_str("%04X" % distance2, 4),
+                        hex_str("%04X" % distance3, 4), rotate.value, color.value, "FE"])
+        self.__peripheral.write(msg)
+
+        # 编队结束
+
+    def BD_end(self):
+        msg = "AA FA CE 00 00 00 00 00 00 00 00 00 FE"
+        self.__peripheral.write(msg)
+
+
+
+
+
+
+

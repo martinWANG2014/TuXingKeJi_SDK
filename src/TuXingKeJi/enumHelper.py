@@ -16,6 +16,17 @@ class Dir(StrEnum):
     RIGHT = "06"
 
 
+class SPED(StrEnum):
+    # 1
+    ONE = "01",
+    # 2
+    TWO = "02",
+    # 3
+    THREE = "03",
+    # 4
+    FOUR = "04"
+
+
 class Dir2(StrEnum):
     # 前
     FRONT = "31",
@@ -39,6 +50,8 @@ class Rotate(StrEnum):
 
 
 class Color(StrEnum):
+    # 保持
+    NOp = "00",
     # 黑
     BLACK = "01",
     # 白
@@ -128,6 +141,8 @@ class MVColor(StrEnum):
     BLUE = "30",
     # 黄
     YELLOW = "40"
+    # 黑
+    BLACK = "50",
 
 
 class JXSOF(StrEnum):

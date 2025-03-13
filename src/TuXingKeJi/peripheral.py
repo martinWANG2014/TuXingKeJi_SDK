@@ -1,6 +1,7 @@
 import threading
 import serial
 
+
 class Peripheral:
     def __init__(self, port_name: str, baud_rate: int = 115200, stop_bits: float = None, byte_size: int = 8,
                  parity: str = None):
@@ -12,8 +13,13 @@ class Peripheral:
         self.buf = bytes()
         self.BUF_SIZE = 1024
         self.__serial = serial.Serial()
-        self.thread_read = None
-
+        # self.thread_read = None
+        try:
+            self.thread_read = threading.Thread(target=self.read)
+            self.thread_read.start()
+            print("start threading")
+        except:
+            print(f"Error: 无法启动线程\n")
 
     @property
     def port_name(self):
@@ -80,36 +86,40 @@ class Peripheral:
             self.__serial.stopbits = self.stop_bits
         self.__serial.parity = self.parity
         self.__serial.open()
-        try:
-            self.thread_read = threading.Thread(target=self.read)
-            self.thread_read.start()
-            # print("start threading")
-        except:
-            print(f"Error: 无法启动线程\n")
+        # try:
+        #     self.thread_read = threading.Thread(target=self.read)
+        #     self.thread_read.start()
+        #     # print("start threading")
+        # except:
+        #     print(f"Error: 无法启动线程\n")
 
     def stop(self):
-        self.__serial.close()
-        self.thread_read.join()
+        try:
+            self.__serial.close()
+            self.thread_read.join()
 
+        except:
+
+            pass
 
     def read(self):
-        try:
-            while True:
-                if self.__serial is None or not self.__serial.isOpen():
-                    continue
-                data_size = self.__serial.in_waiting
-                if data_size < 1:
-                    continue
-                self.buf += self.__serial.read(data_size)
-                data_buf =" ".join("%02X" % b for b in self.buf)
-                print(f"buf:{data_buf}")
-                if len(self.buf) > self.BUF_SIZE:
-                    self.buf = self.buf[len(self.buf) - self.BUF_SIZE:]
-        except:
-            pass
-        finally:
-            pass
-            #print("\ntuxing thread 1 Done")
+        # try:
+        while True:
+            if self.__serial is None or not self.__serial.isOpen():
+                continue
+            data_size = self.__serial.in_waiting
+            if data_size < 1:
+                continue
+            self.buf += self.__serial.read(data_size)
+            data_buf = " ".join("%02X" % b for b in self.buf)
+            print(f"buf:{data_buf}")
+            if len(self.buf) > self.BUF_SIZE:
+                self.buf = self.buf[len(self.buf) - self.BUF_SIZE:]
+        # except:
+        #     pass
+        # finally:
+        #     pass
+        # print("\ntuxing thread 1 Done")
 
     def write(self, data: str):
         self.__serial.write(bytearray.fromhex(data))
