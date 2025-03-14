@@ -1,4 +1,4 @@
-from .enumHelper import ATGColor, QH, AllMode, MVColor, XXFX, JXSOF, OFFON, ISRColor, ISRRT, Land, FliPpt, Color, State, ZY, Rotate, SX, Dir2, Dir,SPED
+from .enumHelper import ATGColor, QH, AllMode, MVColor, XXFX, JXSOF, OFFON, ISRColor, ISRRT, Land, FliPpt, Color, State, ZY, Rotate, SX, Dir2, Dir, SPED
 from .peripheral import Peripheral
 from .serialHelper import hex_str
 
